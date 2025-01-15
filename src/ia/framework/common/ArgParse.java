@@ -277,12 +277,15 @@ public class ArgParse {
         case "dfs":
             System.out.println("DFS");
             return new DFS(p,s);
-            //case "ucs":
-            //return new UCS(p,s);
-            //case "gfs":
-            //return new GFS(p,s);
-            //case "astar":
-            //return new AStar(p,s);
+        case "ucs":
+            System.out.println("UCS");
+            return new UCS(p,s);
+        case "gfs":
+            System.out.println("GFS");
+            return new GFS(p,s);
+        case "astar":
+            System.out.println("A*");
+            return new AStar(p,s);
         default :
             System.out.println("Algorithme inconnu");
             usage();
