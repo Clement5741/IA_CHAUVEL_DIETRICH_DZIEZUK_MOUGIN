@@ -31,8 +31,6 @@ public class MinMaxPlayer extends Player {
 
     @Override
     public Action getMove(GameState state) {
-        // Réinitialiser le compteur pour ce tour
-        this.resetStateCounter();
         int player = state.getPlayerToMove();
         Action action;
         if (player == 1) {
@@ -40,13 +38,11 @@ public class MinMaxPlayer extends Player {
         } else {
             action = minValue(state, depth).getAction();
         }
-        System.out.println("États explorés pour ce tour : " + this.getStateCounter());
         return action;
     }
 
     private ActionValuePair maxValue(GameState state, int depth) {
         this.incStateCounter(); // Incrémenter le compteur
-        debugState("Max", state, depth);
 
         if (state.isFinalState() || depth == 0) {
             return new ActionValuePair(null, state.getGameValue());
@@ -70,7 +66,6 @@ public class MinMaxPlayer extends Player {
 
     private ActionValuePair minValue(GameState state, int depth) {
         this.incStateCounter(); // Incrémenter le compteur
-        debugState("Min", state, depth);
 
         if (state.isFinalState() || depth == 0) {
             return new ActionValuePair(null, state.getGameValue());
@@ -90,9 +85,5 @@ public class MinMaxPlayer extends Player {
         }
 
         return new ActionValuePair(bestAction, minVal);
-    }
-
-    private void debugState(String method, GameState state, int depth) {
-        System.out.println("[" + method + "] Profondeur : " + depth + ", États explorés : " + this.getStateCounter());
     }
 }

@@ -35,6 +35,7 @@ public class AlphaBetaPlayer extends Player {
     }
 
     private ActionValuePair maxValue(GameState state, double alpha, double beta) {
+        this.incStateCounter(); // Incrémenter le compteur
         if (state.isFinalState()) {
             return new ActionValuePair(null, state.getGameValue());
         }
@@ -62,6 +63,7 @@ public class AlphaBetaPlayer extends Player {
     }
 
     private ActionValuePair minValue(GameState state, double alpha, double beta) {
+        this.incStateCounter(); // Incrémenter le compteur
         if (state.isFinalState()) {
             return new ActionValuePair(null, state.getGameValue());
         }
