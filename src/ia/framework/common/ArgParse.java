@@ -269,11 +269,14 @@ public class ArgParse {
             algo = "rnd";
         switch (algo) {
         case "rnd":
+            System.out.println("RND");
             return new RandomTreeSearch(p,s);
-            //case "bfs":
-            //return new BFS(p,s);
-            // case "dfs":
-            //return new DFS(p,s);
+        case "bfs":
+            System.out.println("BFS");
+            return new BFS(p,s);
+        case "dfs":
+            System.out.println("DFS");
+            return new DFS(p,s);
             //case "ucs":
             //return new UCS(p,s);
             //case "gfs":

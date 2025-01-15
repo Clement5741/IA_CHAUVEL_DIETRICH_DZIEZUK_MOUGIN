@@ -55,7 +55,7 @@ public class LancerRecherche {
             algo.printSuccess();
         else
             algo.printFailure();
-        System.out.println("Temps n'écessaire "+estimatedTime/1000.+" sec.");  
+        System.out.println("Temps nécessaire "+estimatedTime/1000.+" sec.");
 
        
     }
