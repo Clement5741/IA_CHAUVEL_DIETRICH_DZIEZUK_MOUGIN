@@ -322,16 +322,16 @@ public class ArgParse {
             case "map":
                 return RomaniaMap.ARAD;
             case "vac":
-            default:
                 return new VacuumState();
-            case "puz":
+            case "far":
+                return new DilemmeFermierState("L", "L", "L", "L");
+            default:
                 return new EightPuzzleState();
             //case "rush":
             //return RushHourState.makePuzzle31();
             //case "abcd":
             //return new ABCDState(new char[]{'A','D','B','C'});
-            case "far":
-                return new DilemmeFermierState("L", "L", "L", "L");
+
         }
     }
 }
