@@ -168,6 +168,18 @@ public class EightPuzzleState extends State implements HasHeuristic{
         }
         return result;
     }
+
+
+	private double heuristic2() {
+		double result = 0;
+		int[] goalBoard = EightPuzzle.GOAL_STATE.getBoard();
+		for (int i = 0; i < board.length; i++) {
+			if (board[i] != 0 && board[i] != goalBoard[i]) {
+				result++;
+			}
+		}
+		return result;
+	}
     
 
     // Générer un puzzle aléatoire

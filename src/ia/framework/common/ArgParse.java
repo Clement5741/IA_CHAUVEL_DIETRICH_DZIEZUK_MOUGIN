@@ -297,7 +297,7 @@ public class ArgParse {
                 return new GFS(p, s);
             case "astar":
                 System.out.println("A*");
-                //return new AStar(p,s);
+                return new AStar(p,s);
             default:
                 System.out.println("Algorithme inconnu");
                 usage();
