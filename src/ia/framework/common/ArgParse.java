@@ -325,8 +325,11 @@ public class ArgParse {
                 return new VacuumState();
             case "far":
                 return new DilemmeFermierState("L", "L", "L", "L");
-            default:
+            case "puz":
                 return new EightPuzzleState();
+            default:
+                System.out.println("Problème inconnu");
+                return null;
             //case "rush":
             //return RushHourState.makePuzzle31();
             //case "abcd":
