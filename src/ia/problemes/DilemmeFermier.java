@@ -9,10 +9,10 @@ import ia.framework.common.State;
 
 public class DilemmeFermier extends SearchProblem {
     // Les actions possibles pour le fermier
-    public static final Action CROSS_ALONE = new Action("Cross alone");
-    public static final Action CROSS_WOLF = new Action("Cross with wolf");
-    public static final Action CROSS_GOAT = new Action("Cross with goat");
-    public static final Action CROSS_CABBAGE = new Action("Cross with cabbage");
+    public static final Action TRAVERSE_SEUL = new Action("Traverse seul");
+public static final Action TRAVERSE_LOUP = new Action("Traverse avec le loup");
+public static final Action TRAVERSE_GOAT = new Action("Traverse avec la chèvre");
+public static final Action TRAVERSE_CHOU = new Action("Traverse avec le chou");
 
     /**
      * L'état but (tout le monde sur la rive droite)
@@ -28,7 +28,7 @@ public class DilemmeFermier extends SearchProblem {
         this.desc = "Le problème du fermier avec le loup, la chèvre et le chou";
 
         // La liste des actions possibles
-        ACTIONS = new Action[] { CROSS_ALONE, CROSS_WOLF, CROSS_GOAT, CROSS_CABBAGE };
+        ACTIONS = new Action[] {TRAVERSE_SEUL, TRAVERSE_LOUP, TRAVERSE_GOAT, TRAVERSE_CHOU};
     }
 
     /**
@@ -71,6 +71,6 @@ public class DilemmeFermier extends SearchProblem {
      * <p>Vérifie si l'état courant est l'état but.</p>
      */
     public boolean isGoalState(State s) {
-        return ((DilemmeFermierState) s).equals(GOAL_STATE);
+        return s.equals(GOAL_STATE);
     }
 }
