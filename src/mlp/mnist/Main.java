@@ -56,7 +56,7 @@ public class Main {
             double erreurTotale = 0.0;
             for (Imagette img : imagettesEntrainement) {
                 double[] entree = convertToDoubleArray(img.getPixels());
-                double[] sortieDesiree = oneHotEncode(img.getLabel());
+                double[] sortieDesiree = encodageOneHot(img.getLabel());
                 erreurTotale += reseau.backPropagate(entree, sortieDesiree);
             }
 
@@ -67,7 +67,7 @@ public class Main {
             for (Imagette img : donneesTest.getImagettes()) {
                 double[] entree = convertToDoubleArray(img.getPixels());
                 double[] sortie = reseau.execute(entree);
-                int prediction = getPredictionFromOutput(sortie);
+                int prediction = getPrediction(sortie);
                 if (prediction == img.getLabel()) {
                     correct++;
                 }
@@ -76,22 +76,22 @@ public class Main {
             double precision = (correct / (double) donneesTest.getImagettes().length) * 100;
             seriePrecision.add(epoch + 1, precision);
 
-            System.out.printf("Epoch %d - Erreur moyenne : %.5f - Précision : %.2f%%%n", epoch + 1, erreurMoyenne, precision);
+            System.out.printf("Epoque %d - Erreur moyenne : %.5f - Précision : %.2f%%%n", epoch + 1, erreurMoyenne, precision);
             tauxApprentissage *= 0.95;
             reseau.setLearningRate(tauxApprentissage);
         }
 
-        afficherCourbes(serieErreur, seriePrecision, nombreNeuronesParCouches, tauxApprentissage);
+        afficherCourbes(serieErreur, seriePrecision);
     }
 
-    private static void afficherCourbes(XYSeries serieErreur, XYSeries seriePrecision, int[] configuration, double tauxApprentissage) {
+    private static void afficherCourbes(XYSeries serieErreur, XYSeries seriePrecision) {
         XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(serieErreur);
         dataset.addSeries(seriePrecision);
 
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Performance du MLP",
-                "Epoch",
+                "Epoque",
                 "Valeur",
                 dataset
         );
@@ -116,13 +116,13 @@ public class Main {
         return result;
     }
 
-    private static double[] oneHotEncode(int label) {
+    private static double[] encodageOneHot(int label) {
         double[] result = new double[10];
         result[label] = 1.0;
         return result;
     }
 
-    private static int getPredictionFromOutput(double[] output) {
+    private static int getPrediction(double[] output) {
         int index = 0;
         for (int i = 1; i < output.length; i++) {
             if (output[i] > output[index]) {
