@@ -2,13 +2,23 @@ package mlp.mnist;
 
 import mlp.MLP;
 import mlp.SigmoidFunction;
+import mlp.TanhFunction;
+import mlp.TransferFunction;
 
 public class AdaptateurMLP extends AlgoClassification {
     private MLP mlp;
 
-    public AdaptateurMLP(Donnees donnees, int[] couchesMLP, double tauxApprentissage) {
+    public AdaptateurMLP(Donnees donnees, int[] couchesMLP, double tauxApprentissage, String fonctionActivation) {
         super(donnees);
-        this.mlp = new MLP(couchesMLP, tauxApprentissage, new SigmoidFunction());
+
+        // Configurer la fonction d'activation
+        TransferFunction activationFunction = switch (fonctionActivation.toLowerCase()) {
+            case "tanh" -> new TanhFunction();
+            case "sigmoid" -> new SigmoidFunction();
+            default -> throw new IllegalArgumentException("Fonction d'activation invalide : " + fonctionActivation);
+        };
+
+        this.mlp = new MLP(couchesMLP, tauxApprentissage, activationFunction);
     }
 
     @Override
@@ -18,16 +28,42 @@ public class AdaptateurMLP extends AlgoClassification {
         return getPredictionFromOutput(sortie);
     }
 
-    public void entrainer(int maxEpochs) {
+    public void entrainer(double erreurCible, int maxEpochs) {
         Imagette[] imagesEntrainement = donnees.getImagettes();
 
+        System.out.println("Début de l'entraînement global...");
         for (int epoch = 0; epoch < maxEpochs; epoch++) {
+            double erreurTotale = 0.0;
+
             for (Imagette img : imagesEntrainement) {
                 double[] entree = convertToDoubleArray(img.getPixels());
                 double[] sortieDesiree = oneHotEncode(img.getLabel());
-                mlp.backPropagate(entree, sortieDesiree);
+                erreurTotale += mlp.backPropagate(entree, sortieDesiree);
+            }
+
+            double erreurMoyenne = erreurTotale / imagesEntrainement.length;
+
+            // Afficher la progression globale
+            afficherProgressionGlobale(epoch + 1, maxEpochs);
+
+            // Vérifier si l'erreur cible est atteinte
+            if (erreurMoyenne <= erreurCible) {
+                System.out.printf(" - Erreur cible atteinte à l'époque %d. Arrêt de l'entraînement.%n", epoch + 1);
+                break;
             }
         }
+        System.out.println("\nEntraînement terminé !");
+    }
+
+    private void afficherProgressionGlobale(int currentEpoch, int maxEpochs) {
+        int largeurBarre = 30; // Largeur de la barre de progression
+        int progress = (int) (largeurBarre * ((double) currentEpoch / maxEpochs));
+        StringBuilder barre = new StringBuilder("[");
+        for (int i = 0; i < largeurBarre; i++) {
+            barre.append(i < progress ? "#" : " ");
+        }
+        barre.append("]");
+        System.out.printf("\rProgression globale %s %d/%d", barre, currentEpoch, maxEpochs);
     }
 
     private double[] convertToDoubleArray(int[][] pixels) {
