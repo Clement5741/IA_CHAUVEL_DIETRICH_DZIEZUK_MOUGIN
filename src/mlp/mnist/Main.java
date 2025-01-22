@@ -9,22 +9,36 @@ public class Main {
         Donnees donneesEntrainement = Donnees.loadData("./donnees/train-images.idx3-ubyte", "./donnees/train-labels.idx1-ubyte", 1000);
         Donnees donneesTest = Donnees.loadData("./donnees/t10k-images.idx3-ubyte", "./donnees/t10k-labels.idx1-ubyte", 500);
 
-        // Créer l'adaptateur
+        // Créer une instance de KNN
+        int k = 5; // Nombre de voisins pour KNN
+        kNN knn = new kNN(donneesEntrainement, k);
+
+        // Créer une instance de MLP via l'adaptateur
         int[] configurationMLP = {784, 64, 10};
         double tauxApprentissage = 0.6;
-        int k = 5; // Valeur de k pour KNN
-        AdaptateurMLPvsKNN adaptateur = new AdaptateurMLPvsKNN(donneesEntrainement, donneesTest, configurationMLP, tauxApprentissage, k);
+        AdaptateurMLP mlp = new AdaptateurMLP(donneesEntrainement, configurationMLP, tauxApprentissage);
 
         // Entraîner le MLP
-        System.out.println("Début de l'entraînement du MLP...");
-        adaptateur.entrainer(10);
+        System.out.println("Entraînement du MLP...");
+        mlp.entrainer(10);
 
-        // Évaluer les performances finales
-        System.out.println("Test des performances finales :");
-        double precisionFinaleMLP = adaptateur.testerMLP();
-        double precisionFinaleKNN = adaptateur.testerKNN();
+        // Tester les deux algorithmes
+        System.out.println("Test des performances :");
+        double precisionKNN = testerAlgo(knn, donneesTest);
+        double precisionMLP = testerAlgo(mlp, donneesTest);
 
-        System.out.printf("Précision finale MLP : %.2f%%%n", precisionFinaleMLP);
-        System.out.printf("Précision finale KNN : %.2f%%%n", precisionFinaleKNN);
+        System.out.printf("Précision finale KNN : %.2f%%%n", precisionKNN);
+        System.out.printf("Précision finale MLP : %.2f%%%n", precisionMLP);
+    }
+
+    private static double testerAlgo(AlgoClassification algo, Donnees donnees) {
+        int correct = 0;
+        for (Imagette img : donnees.getImagettes()) {
+            int prediction = algo.predire(img);
+            if (prediction == img.getLabel()) {
+                correct++;
+            }
+        }
+        return (correct / (double) donnees.getImagettes().length) * 100;
     }
 }
