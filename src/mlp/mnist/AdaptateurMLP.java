@@ -28,12 +28,13 @@ public class AdaptateurMLP extends AlgoClassification {
         return getPredictionFromOutput(sortie);
     }
 
-    public void entrainer(double erreurCible, int maxEpochs) {
+    public double entrainer(double erreurCible, int maxEpochs) {
         Imagette[] imagesEntrainement = donnees.getImagettes();
+        double erreurTotale = 0.0;
 
         System.out.println("Début de l'entraînement global...");
         for (int epoch = 0; epoch < maxEpochs; epoch++) {
-            double erreurTotale = 0.0;
+            erreurTotale = 0.0;
 
             for (Imagette img : imagesEntrainement) {
                 double[] entree = convertToDoubleArray(img.getPixels());
@@ -49,11 +50,14 @@ public class AdaptateurMLP extends AlgoClassification {
             // Vérifier si l'erreur cible est atteinte
             if (erreurMoyenne <= erreurCible) {
                 System.out.printf(" - Erreur cible atteinte à l'époque %d. Arrêt de l'entraînement.%n", epoch + 1);
-                break;
+                return erreurMoyenne;
             }
         }
+
         System.out.println("\nEntraînement terminé !");
+        return erreurTotale / imagesEntrainement.length;
     }
+
 
     private void afficherProgressionGlobale(int currentEpoch, int maxEpochs) {
         int largeurBarre = 30; // Largeur de la barre de progression
