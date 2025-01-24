@@ -235,6 +235,11 @@ public class SearchNode {
 
         return solution;
     }
+
+    public static void resetCount(){
+        COUNT = 0;
+        DEPTH = 0;
+    }
 }
     
     
