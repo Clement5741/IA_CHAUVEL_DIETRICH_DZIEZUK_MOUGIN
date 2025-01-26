@@ -33,13 +33,13 @@ public class MinMaxPlayer extends Player {
     }
 
     private ActionValuePair maxValue(GameState state, int depth) {
-        this.incStateCounter();
+        incStateCounter();
 
         if (game.endOfGame(state) || depth >= maxDepth) {
             return new ActionValuePair(null, state.getGameValue());
         }
 
-        double vMax = Double.NEGATIVE_INFINITY;
+        double vMax = -Double.MAX_VALUE;
         Action cMax = null;
 
         for (Action action : game.getActions(state)) {
@@ -55,12 +55,13 @@ public class MinMaxPlayer extends Player {
     }
 
     private ActionValuePair minValue(GameState state, int depth) {
-        this.incStateCounter();
+        incStateCounter();
+
         if (game.endOfGame(state) || depth >= maxDepth) {
             return new ActionValuePair(null, state.getGameValue());
         }
 
-        double vMin = Double.POSITIVE_INFINITY;
+        double vMin = Double.MAX_VALUE;
         Action cMin = null;
 
         for (Action action : game.getActions(state)) {
