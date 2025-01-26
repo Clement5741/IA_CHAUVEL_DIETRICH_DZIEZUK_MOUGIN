@@ -8,11 +8,12 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Main {
+public class MainCourbes {
 
     public static void main(String[] args) throws IOException {
         // Charger les données d'entraînement et de test
@@ -31,10 +32,10 @@ public class Main {
         double erreurCible = 0.01;
         boolean[] melanger = {true, false};
 
-        String fonctionActivation = "sigmoid";
+        String fonctionActivation = "tanh";
 
         for (int[] configurationMLP : configurationsCouches) {
-            System.out.printf("\nConfiguration des couches : %s%n", java.util.Arrays.toString(configurationMLP));
+            System.out.printf("\nConfiguration des couches : %s%n", Arrays.toString(configurationMLP));
 
             for (double tauxApprentissage : tauxApprentissageInitials) {
                 System.out.printf("Taux d’apprentissage : %.2f%n", tauxApprentissage);
@@ -44,46 +45,35 @@ public class Main {
                     if (melange) {
                         List<Imagette> imagettes = new ArrayList<>(List.of(donneesEntrainement.getImagettes()));
                         Collections.shuffle(imagettes);
+                        donneesEntrainement = new Donnees(imagettes.toArray(new Imagette[0]));
                     }
 
-                    // Créer MLP
+                    // MLP
                     AdaptateurMLP mlp = new AdaptateurMLP(donneesEntrainement, configurationMLP, tauxApprentissage, fonctionActivation);
-
-                    // Courbes
-                    XYSeries erreurMoyenneMLP = new XYSeries("Erreur Moyenne MLP");
-                    XYSeries precisionMLP = new XYSeries("Précision MLP");
-
                     System.out.println("Entraînement...");
-                    for (int epoch = 0; epoch < maxEpochs; epoch++) {
-                        // Entraîner MLP
-                        double erreurEpoch = mlp.entrainer(erreurCible, maxEpochs);
+                    XYSeries[] courbes = mlp.entrainer(erreurCible, maxEpochs);
 
-                        // Tester MLP et KNN
-                        double precisionEpochMLP = testerAlgo(mlp, donneesTest);
-
-                        // Ajouter les résultats aux séries
-                        System.out.println("Époque " + (epoch + 1) + " : Erreur moyenne = " + erreurEpoch + ", Précision MLP = " + precisionEpochMLP);
-                        erreurMoyenneMLP.add(epoch + 1, erreurEpoch);
-                        precisionMLP.add(epoch + 1, precisionEpochMLP);
-
-                        // Arrêter si l'erreur cible est atteinte
-                        if (erreurEpoch <= erreurCible) {
-                            System.out.printf("Erreur cible atteinte à l'époque %d.%n", epoch + 1);
-                            break;
-                        }
-                    }
+                    //Knn
+                    kNN knn = new kNN(donneesEntrainement, 3);
 
                     // Résultats finaux
                     double precisionFinaleMLP = testerAlgo(mlp, donneesTest);
+                    XYSeries courbePrecisionKnn = new XYSeries("Précision kNN");
+                    double precisionKnn = testerAlgo(knn, donneesTest);
+                    for (int epoch = 0; epoch < courbes[0].getItemCount(); epoch++) {
+                        courbePrecisionKnn.add(epoch, precisionKnn);
+                    }
                     System.out.printf("Précision finale MLP : %.2f%%%n", precisionFinaleMLP);
+                    System.out.printf("Précision finale kNN : %.2f%%%n", precisionKnn);
 
                     // Tracer les graphiques
                     XYSeriesCollection datasetPrecision = new XYSeriesCollection();
-                    datasetPrecision.addSeries(precisionMLP);
-                    tracerCourbes(datasetPrecision, "Précision MLP", "Époques", "Précision (%)", "Précision MLP");
+                    datasetPrecision.addSeries(courbes[1]);
+                    datasetPrecision.addSeries(courbePrecisionKnn);
+                    tracerCourbes(datasetPrecision, "Précision MLP vs kNN", "Époques", "Précision (%)", "Précision MLP vs kNN");
 
                     XYSeriesCollection datasetErreur = new XYSeriesCollection();
-                    datasetErreur.addSeries(erreurMoyenneMLP);
+                    datasetErreur.addSeries(courbes[0]);
                     tracerCourbes(datasetErreur, "Erreur Moyenne MLP", "Époques", "Erreur Moyenne", "Erreur Moyenne MLP");
                 }
             }
@@ -115,4 +105,5 @@ public class Main {
         frame.pack();
         frame.setVisible(true);
     }
+
 }

@@ -4,6 +4,7 @@ import mlp.MLP;
 import mlp.SigmoidFunction;
 import mlp.TanhFunction;
 import mlp.TransferFunction;
+import org.jfree.data.xy.XYSeries;
 
 public class AdaptateurMLP extends AlgoClassification {
     private MLP mlp;
@@ -28,21 +29,37 @@ public class AdaptateurMLP extends AlgoClassification {
         return getPredictionFromOutput(sortie);
     }
 
-    public double entrainer(double erreurCible, int maxEpochs) {
+    public XYSeries[] entrainer(double erreurCible, int maxEpochs) {
+        XYSeries erreurMoyenneMLP = new XYSeries("Erreur Moyenne MLP");
+        XYSeries precisionMLP = new XYSeries("Précision MLP");
+
         Imagette[] imagesEntrainement = donnees.getImagettes();
-        double erreurTotale = 0.0;
+        double erreurTotale;
 
         System.out.println("Début de l'entraînement global...");
         for (int epoch = 0; epoch < maxEpochs; epoch++) {
             erreurTotale = 0.0;
+            int correctPredictions = 0;
 
             for (Imagette img : imagesEntrainement) {
                 double[] entree = convertToDoubleArray(img.getPixels());
                 double[] sortieDesiree = oneHotEncode(img.getLabel());
                 erreurTotale += mlp.backPropagate(entree, sortieDesiree);
+
+                // Prédiction pour calculer la précision
+                double[] sortie = mlp.execute(entree);
+                int prediction = getPredictionFromOutput(sortie);
+                if (prediction == img.getLabel()) {
+                    correctPredictions++;
+                }
             }
 
             double erreurMoyenne = erreurTotale / imagesEntrainement.length;
+            double precision = (correctPredictions / (double) imagesEntrainement.length) * 100;
+
+            // Ajouter les valeurs aux séries
+            erreurMoyenneMLP.add(epoch + 1, erreurMoyenne);
+            precisionMLP.add(epoch + 1, precision);
 
             // Afficher la progression globale
             afficherProgressionGlobale(epoch + 1, maxEpochs);
@@ -50,12 +67,12 @@ public class AdaptateurMLP extends AlgoClassification {
             // Vérifier si l'erreur cible est atteinte
             if (erreurMoyenne <= erreurCible) {
                 System.out.printf(" - Erreur cible atteinte à l'époque %d. Arrêt de l'entraînement.%n", epoch + 1);
-                return erreurMoyenne;
+                return new XYSeries[]{erreurMoyenneMLP, precisionMLP};
             }
         }
-
         System.out.println("\nEntraînement terminé !");
-        return erreurTotale / imagesEntrainement.length;
+
+        return new XYSeries[]{erreurMoyenneMLP, precisionMLP};
     }
 
 
