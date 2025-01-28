@@ -6,8 +6,8 @@ JAR='Games.jar'
 CMD="java -jar ${JAR_DIR}/${JAR}"
 
 # defaults
-P1='random'
-P2='random'
+P1='alphabeta'
+P2='alphabeta'
 GAME='tictactoe'
 DEPTH='-1'
 RUNS='15'
@@ -75,7 +75,7 @@ Usage: `basename $0` [-h|--help] [-g|--game tictactoe|connect4|gomoku|mnk] [-p1|
 fi
 
 # Go go go 
-ARGS="-p1 ${P1} -p2 ${P2} -g=${GAME} -d=${DEPTH}"
+ARGS="-p1 ${P1} -p2 ${P2} -game ${GAME} -d ${DEPTH}"
 echo "# Running : $CMD $ARGS"
 echo "# Use -h for help."
 

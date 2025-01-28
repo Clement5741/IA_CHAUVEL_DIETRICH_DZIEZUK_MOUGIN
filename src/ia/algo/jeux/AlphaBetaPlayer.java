@@ -7,86 +7,103 @@ import ia.framework.jeux.GameState;
 import ia.framework.jeux.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class AlphaBetaPlayer extends Player {
 
-    private static final int POSITIVE_INFINITE = Integer.MAX_VALUE;
-    private static final int NEGATIVE_INFINITE = Integer.MIN_VALUE;
+    private final int maxDepth;
+
 
     /**
      * Represente un joueur
      *
      * @param g            l'instance du jeux
      * @param player_one   si joueur 1
-     * @param valueOfParam la profondeur maximale à explorer
+     * @param maxDepth la profondeur maximale à explorer
      */
-    public AlphaBetaPlayer(Game g, boolean player_one, int valueOfParam) {
+    public AlphaBetaPlayer(Game g, boolean player_one, int maxDepth) {
         super(g, player_one);
+        name = "AlphaBeta";
+        this.maxDepth = maxDepth;
     }
 
     @Override
     public Action getMove(GameState state) {
-        int player = state.getPlayerToMove();
-        if (player == 1) {
-            return maxValue(state, NEGATIVE_INFINITE, POSITIVE_INFINITE).getAction();
+        if (this.player == PLAYER1) {
+            return maxValue(state, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY).getAction();
         } else {
-            return minValue(state, NEGATIVE_INFINITE, POSITIVE_INFINITE).getAction();
+            return minValue(state, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY).getAction();
         }
     }
 
-    private ActionValuePair maxValue(GameState state, double alpha, double beta) {
-        this.incStateCounter(); // Incrémenter le compteur
-        if (state.isFinalState()) {
+    private ActionValuePair maxValue(GameState state, int depth, double alpha, double beta) {
+        incStateCounter();
+
+        if (state.isFinalState() || depth == maxDepth) {
             return new ActionValuePair(null, state.getGameValue());
         }
 
-        double maxVal = Double.NEGATIVE_INFINITY;
-        Action bestAction = null;
+        double vMax = Double.NEGATIVE_INFINITY;
+        Action cMax = null;
         ArrayList<Action> actions = game.getActions(state);
+        Collections.shuffle(actions);
 
-        for (Action action : actions) {
-            GameState nextState = (GameState) game.doAction(state, action);
-            double value = minValue(nextState, alpha, beta).getValue();
-            if (value >= maxVal) {
-                maxVal = value;
-                bestAction = action;
-                if (maxVal > alpha) {
-                    alpha = maxVal;
+        ActionValuePair value = null;
+        for (Action c : actions) {
+            GameState nextState = (GameState) game.doAction(state, c);
+            value = minValue(nextState, depth + 1, alpha, beta);
+            if (value.getValue() >= vMax) {
+                vMax = value.getValue();
+                cMax = c;
+                if (vMax > alpha) {
+                    alpha = vMax;
                 }
             }
-            if (maxVal >= beta) {
-                return new ActionValuePair(bestAction, maxVal);
+            if (vMax >= beta) {
+                return new ActionValuePair(cMax, vMax);
             }
         }
+        if (cMax == null) {
+            vMax = value.getValue();
+            cMax = actions.get(actions.size()-1);
+        }
 
-        return new ActionValuePair(bestAction, maxVal);
+        return new ActionValuePair(cMax, vMax);
     }
 
-    private ActionValuePair minValue(GameState state, double alpha, double beta) {
-        this.incStateCounter(); // Incrémenter le compteur
-        if (state.isFinalState()) {
+    private ActionValuePair minValue(GameState state, int depth, double alpha, double beta) {
+        incStateCounter();
+
+        if (state.isFinalState() || depth == maxDepth) {
             return new ActionValuePair(null, state.getGameValue());
         }
 
-        double minVal = Double.POSITIVE_INFINITY;
-        Action bestAction = null;
-        ArrayList<Action> actions = game.getActions(state);
+        double vMin = Double.POSITIVE_INFINITY;
+        Action cMin = null;
 
-        for (Action action : actions) {
-            GameState nextState = (GameState) game.doAction(state, action);
-            double value = maxValue(nextState, alpha, beta).getValue();
-            if (value <= minVal) {
-                minVal = value;
-                bestAction = action;
-                if (minVal < beta) {
-                    beta = minVal;
+        ArrayList<Action> actions = game.getActions(state);
+        Collections.shuffle(actions);
+
+        ActionValuePair value = null;
+        for (Action c : actions) {
+            GameState nextState = (GameState) game.doAction(state, c);
+            value = maxValue(nextState, depth + 1, alpha, beta);
+            if (value.getValue() <= vMin) {
+                vMin = value.getValue();
+                cMin = c;
+                if (vMin < beta) {
+                    beta = vMin;
                 }
             }
-            if (minVal <= alpha) {
-                return new ActionValuePair(bestAction, minVal);
+            if (vMin <= alpha) {
+                return new ActionValuePair(cMin, vMin);
             }
         }
+        if (cMin == null) {
+            vMin = value.getValue();
+            cMin = actions.get(actions.size()-1);
+        }
 
-        return new ActionValuePair(bestAction, minVal);
+        return new ActionValuePair(cMin, vMin);
     }
 }
