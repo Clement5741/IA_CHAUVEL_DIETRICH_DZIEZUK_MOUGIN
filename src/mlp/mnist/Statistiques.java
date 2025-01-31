@@ -7,20 +7,19 @@ import java.io.PrintWriter;
 public class Statistiques {
 
     private AlgoClassification algo;
-    private static final String FICHIER_RESULTATS = "resultats_knn.csv";
 
     public Statistiques(AlgoClassification algo) {
         this.algo = algo;
     }
 
-    public double calculerPourcentageCorrect(Donnees donneesTest) {
+    public double calculerPourcentageCorrect(Donnees donneesTest, String fichierResultats) {
         Imagette[] imagesTest = donneesTest.getImagettes();
         int correct = 0;
         int total = imagesTest.length;
         long startTime = System.currentTimeMillis();
 
         // Ouverture du fichier en mode ajout
-        try (FileWriter fw = new FileWriter(FICHIER_RESULTATS, true);
+        try (FileWriter fw = new FileWriter(fichierResultats, true);
              PrintWriter writer = new PrintWriter(fw)) {
 
             for (int i = 0; i < total; i++) {
@@ -38,7 +37,7 @@ public class Statistiques {
                     int echec = (i + 1) - correct;
 
                     // Affichage console
-                    System.out.printf("📊 Images : %d / %d | Précision : %.2f%% | Réussites : %d | Échecs : %d | Temps : %d ms%n",
+                    System.out.printf("Images : %d / %d | Précision : %.2f%% | Réussites : %d | Échecs : %d | Temps : %d ms%n",
                             (i + 1), total, precision, correct, echec, elapsedTime);
 
                     // Écriture dans le fichier
@@ -47,10 +46,10 @@ public class Statistiques {
                 }
             }
 
-            System.out.println("📁 Résultats enregistrés dans " + FICHIER_RESULTATS);
+            System.out.println("Résultats enregistrés dans le fichier : " + fichierResultats);
 
         } catch (IOException e) {
-            System.err.println("❌ Erreur lors de l'écriture du fichier : " + e.getMessage());
+            System.err.println("Erreur lors de l'écriture du fichier : " + e.getMessage());
         }
 
         return (double) correct / total * 100;

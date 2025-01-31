@@ -17,8 +17,8 @@ public class MainCourbes {
 
     public static void main(String[] args) throws IOException {
         // Charger les données d'entraînement et de test
-        Donnees donneesEntrainement = Donnees.loadData("./donnees/train-images.idx3-ubyte", "./donnees/train-labels.idx1-ubyte", 1000);
-        Donnees donneesTest = Donnees.loadData("./donnees/t10k-images.idx3-ubyte", "./donnees/t10k-labels.idx1-ubyte", 500);
+        Donnees donneesEntrainement = Donnees.loadData("./donnees/train-images.idx3-ubyte", "./donnees/train-labels.idx1-ubyte");
+        Donnees donneesTest = Donnees.loadData("./donnees/t10k-images.idx3-ubyte", "./donnees/t10k-labels.idx1-ubyte");
 
         // Configurations des tests
         int[][] configurationsCouches = {

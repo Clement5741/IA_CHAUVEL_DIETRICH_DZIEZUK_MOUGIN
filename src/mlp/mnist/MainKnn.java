@@ -28,9 +28,9 @@ public class MainKnn {
             System.out.println("Test kNN...");
             long startTime = System.currentTimeMillis();
             Statistiques stats = new Statistiques(knn);
-            double precisionFinaleKnn = stats.calculerPourcentageCorrect(donneesTest);
+            double precisionFinaleKnn = stats.calculerPourcentageCorrect(donneesTest,"./resultats/knn.csv");
             long endTime = System.currentTimeMillis();
-            System.out.printf("Précision finale kNN : %.2f%%%n", precisionFinaleKnn * 100);
+            System.out.printf("Précision finale kNN : %.2f%%%n", precisionFinaleKnn);
             System.out.printf("Temps d'exécution : %d ms%n", (endTime - startTime));
         } catch (Exception e) {
             e.printStackTrace();
