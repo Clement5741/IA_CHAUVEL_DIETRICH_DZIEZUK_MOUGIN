@@ -29,17 +29,16 @@ public class Imagette {
         this.label = label;
     }
 
-    public static Imagette[] loadImages(String filePath, int maxImages) throws IOException {
+    public static Imagette[] loadImages(String filePath) throws IOException {
         try (DataInputStream dis = new DataInputStream(new FileInputStream(filePath))) {
             int magicNumber = dis.readInt();
             int numberOfImages = dis.readInt();
             int rows = dis.readInt();
             int cols = dis.readInt();
 
-            int imagesToLoad = Math.min(maxImages, numberOfImages);
-            Imagette[] images = new Imagette[imagesToLoad];
+            Imagette[] images = new Imagette[numberOfImages];
 
-            for (int i = 0; i < imagesToLoad; i++) {
+            for (int i = 0; i < numberOfImages; i++) {
                 images[i] = new Imagette(new int[rows][cols], -1);
                 for (int row = 0; row < rows; row++) {
                     for (int col = 0; col < cols; col++) {

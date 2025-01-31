@@ -13,8 +13,8 @@ public class Donnees {
         return imagettes;
     }
 
-    public static Donnees loadData(String imagePath, String labelPath,int maxImages) throws IOException {
-        Imagette[] images = Imagette.loadImages(imagePath, maxImages);
+    public static Donnees loadData(String imagePath, String labelPath) throws IOException {
+        Imagette[] images = Imagette.loadImages(imagePath);
         int[] labels = Labels.loadLabels(labelPath).getLabels();
 
         // Associer les étiquettes aux images
