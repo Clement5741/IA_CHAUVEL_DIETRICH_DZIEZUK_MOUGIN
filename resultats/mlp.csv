@@ -1,0 +1,2 @@
+Fichiers mnist
+Images traitees;Precision;Reussites;Echecs;Temps (ms);Configuration : [784, 10] | Taux Apprentissage : 0.01 | Melange : true
