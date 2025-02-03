@@ -10,7 +10,7 @@ public class Statistiques {
         this.algo = algo;
     }
 
-    public double calculerPourcentageCorrect(Donnees donneesTest, PrintWriter writer, long startTime) {
+    public double calculerPourcentageCorrect(Donnees donneesTest, PrintWriter writer) {
         Imagette[] imagesTest = donneesTest.getImagettes();
         int correct = 0;
         int total = imagesTest.length;
@@ -25,16 +25,14 @@ public class Statistiques {
 
             // Toutes les 1000 images, écrire les stats dans le fichier et afficher en console
             if ((i + 1) % 1000 == 0 || i == total - 1) {
-                long elapsedTime = System.currentTimeMillis() - startTime;
                 double precision = (double) correct / (i + 1) * 100;
-                int echec = (i + 1) - correct;
 
                 // Affichage console
-                System.out.printf("Images : %d / %d | Précision : %.2f%% | Réussites : %d | Échecs : %d | Temps : %d ms%n",
-                        (i + 1), total, precision, correct, echec, elapsedTime);
+                System.out.printf("Images : %d / %d | Précision : %.1f%%\n",
+                        (i + 1), total, precision);
 
                 // Écriture dans le fichier via le `PrintWriter` existant
-                writer.printf("%d;%.2f;%d;%d;%d%n", (i + 1), precision, correct, echec, elapsedTime);
+                writer.println((i + 1)+";"+precision);
                 writer.flush(); // Forcer l'écriture immédiate
             }
         }

@@ -29,28 +29,44 @@ public class AdaptateurMLP extends AlgoClassification {
         return getPredictionFromOutput(sortie);
     }
 
-    public double entrainer(double erreurCible, int maxEpochs) {
+    public void entrainer(double erreurCible, int maxEpochs) {
         Imagette[] imagesEntrainement = donnees.getImagettes();
-
         System.out.println("Début de l'entraînement global...");
-        double erreurTotale = 0.0;
+
+        double erreurTotale;
         for (int epoch = 0; epoch < maxEpochs; epoch++) {
             erreurTotale = 0.0;
+            int correctPredictions = 0; // Ajout du suivi des bonnes prédictions
+
             for (Imagette img : imagesEntrainement) {
                 double[] entree = convertToDoubleArray(img.getPixels());
                 double[] sortieDesiree = oneHotEncode(img.getLabel());
                 erreurTotale += mlp.backPropagate(entree, sortieDesiree);
+
+                // Calcul de la précision après chaque epoch
+                double[] sortie = mlp.execute(entree);
+                int prediction = getPredictionFromOutput(sortie);
+                if (prediction == img.getLabel()) {
+                    correctPredictions++;
+                }
             }
+
             double erreurMoyenne = erreurTotale / imagesEntrainement.length;
-            // Vérifier si l'erreur cible est atteinte
+            double precision = (correctPredictions / (double) imagesEntrainement.length) * 100;
+
+            if (epoch % 10 == 0) {
+                System.out.printf("Époque %d : Erreur moyenne = %.5f | Précision = %.2f%%%n", epoch, erreurMoyenne, precision);
+            }
+
+            // Vérification de l’erreur cible
             if (erreurMoyenne <= erreurCible) {
-                System.out.printf(" - Erreur cible atteinte à l'époque %d. Arrêt de l'entraînement.%n", epoch + 1);
-                return erreurMoyenne;
+                System.out.printf("Erreur cible atteinte à l'époque %d. Arrêt de l'entraînement.%n", epoch + 1);
+                break;
             }
         }
         System.out.println("\nEntraînement terminé !");
-        return erreurTotale/imagesEntrainement.length;
     }
+
 
     private double[] convertToDoubleArray(int[][] pixels) {
         int rows = pixels.length;

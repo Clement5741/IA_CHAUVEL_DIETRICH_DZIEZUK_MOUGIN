@@ -33,16 +33,15 @@ public class MainKnn {
             // kNN
             int[] k = {3, 5, 10};
             for (int kk : k) {
-                writer.println("Images traitees;Precision;Reussites;Echecs;Temps (ms);" + "k : " + kk);
+                writer.println("Images traitees;Precision;" + "k : " + kk);
                 writer.flush();
                 System.out.println("\n=====================");
                 System.out.println("k : " + kk);
                 System.out.println("=====================");
-                kNN knn = new kNN(donneesEntrainement, 10);
-                long startTime = System.currentTimeMillis();
+                kNN knn = new kNN(donneesEntrainement, kk);
                 Statistiques stats = new Statistiques(knn);
-                double precisionFinaleKnn = stats.calculerPourcentageCorrect(donneesTest, writer, startTime);
-                System.out.printf("Précision finale kNN : %.2f%%%n", precisionFinaleKnn);
+                double precisionFinaleKnn = stats.calculerPourcentageCorrect(donneesTest, writer);
+                System.out.printf("Précision finale kNN : %.1f%%%n", precisionFinaleKnn);
             }
             writer.close();
         } catch (Exception e) {
