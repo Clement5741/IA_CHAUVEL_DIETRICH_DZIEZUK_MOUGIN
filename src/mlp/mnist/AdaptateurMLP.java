@@ -4,7 +4,6 @@ import mlp.MLP;
 import mlp.SigmoidFunction;
 import mlp.TanhFunction;
 import mlp.TransferFunction;
-import org.jfree.data.xy.XYSeries;
 
 public class AdaptateurMLP extends AlgoClassification {
     private MLP mlp;
