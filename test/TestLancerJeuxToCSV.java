@@ -11,11 +11,11 @@ public class TestLancerJeuxToCSV {
 
     public static void main(String[] args) {
         // Configurations pour les tests
-        String[] games = {"tictactoe", "mnk"}; // Jeux a tester
+        String[] games = {"mnk"}; // Jeux a tester
         String[] playerTypes = {"minmax", "alphabeta", "random"}; // Algorithmes de joueurs
         int[] maxDepths = {3, 4, 5}; // Profondeurs maximales
         int[] sizes = {5, 6}; // Tailles du jeu (uniquement pour Mnk)
-        String csvFile = "results_games.csv";
+        String csvFile = "results_games_new_fonction.csv";
 
         try (FileWriter writer = new FileWriter(csvFile)) {
             // Ecrire l'entete
