@@ -1,10 +1,10 @@
 package mlp.mnist;
 
-import mlp.MLP;
-import mlp.TanhFunction;
-
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.stream.IntStream;
+import java.util.Collections;
+import java.util.List;
 
 public class MainMLP {
 
@@ -19,144 +19,70 @@ public class MainMLP {
 //    public static final String ETIQUETTES_TRAIN = "./donnees/fashion/train-labels-idx1-ubyte";
 //    public static final String IMAGES_TEST = "./donnees/fashion/t10k-images-idx3-ubyte";
 //    public static final String ETIQUETTES_TEST = "./donnees/fashion/t10k-labels-idx1-ubyte";
+
     public static void main(String[] args) {
         try {
+            String nomFichier = "./resultats/mlp.csv";
+            FileWriter fw = new FileWriter(nomFichier,true);
+            PrintWriter writer = new PrintWriter(fw);
+            String fichier = "mnist";
+
             // Chargement des données
             System.out.println("Chargement des données...");
-            Donnees donneesEntrainement = Donnees.loadData(IMAGES_TRAIN, ETIQUETTES_TRAIN);
-            Donnees donneesTest = Donnees.loadData(IMAGES_TEST, ETIQUETTES_TEST);
+            Donnees donneesEntrainement = Donnees.loadData(IMAGES_TRAIN, ETIQUETTES_TRAIN,1000);
+            Donnees donneesTest = Donnees.loadData(IMAGES_TEST, ETIQUETTES_TEST,1000);
             System.out.println("Données chargées avec succès !\n");
 
             // Configurations des tests
             int[][] configurationsCouches = {
                     {784, 10},
                     {784, 64, 10},
+                    {784, 256, 10},
                     {784, 128, 64, 10},
+                    {784, 256, 128, 10},
                     {784, 128, 128, 64, 10},
+                    {784, 256, 256, 128, 10},
             };
             double[] tauxApprentissageInitials = {0.01, 0.1, 0.5};
-            double erreurCible = 0.01;
             boolean[] melanger = {true, false};
+            String fonctionActivation = "tanh";
+
+            writer.println("Fichiers " + fichier +" + "+fonctionActivation);
+            writer.flush();
 
             for (int[] configuration : configurationsCouches) {
-                System.out.println(Arrays.toString(configuration));
                 for (double tauxApprentissage : tauxApprentissageInitials) {
                     for (boolean melange : melanger) {
-//                        if (melange) {
-//                            Arrays.stream(donneesEntrainement.getImagettes()).forEach(imagette -> {
-//                                double[] entrees = aplatirEtNormaliser(imagette.getPixels());
-//                                double[] sortiesDesirees = new double[10];
-//                                sortiesDesirees[imagette.getLabel()] = 1;
-//                                perceptron.backPropagate(entrees, sortiesDesirees);
-//                            });
-//                        }
+                        writer.println("Images traitees;Precision;" + "Configuration : " + Arrays.toString(configuration) +
+                                " | Taux Apprentissage : " + tauxApprentissage +
+                                " | Melange : " + melange);
+                        writer.flush();
+                        System.out.println("\n=====================");
+                        System.out.println("Configuration : " + Arrays.toString(configuration) +
+                                " | Taux Apprentissage : " + tauxApprentissage +
+                                " | Mélangé : " + melange);
+                        System.out.println("=====================");
+                        Donnees donneesTrain = melange ? melangerDonnees(donneesEntrainement) : donneesEntrainement;
 
-                        MLP perceptron = new MLP(configuration, tauxApprentissage, new TanhFunction());
-                        long startTime = System.currentTimeMillis();
-                        double precision = entrainerEtEvaluer(perceptron, donneesEntrainement, donneesTest);
-                        long endTime = System.currentTimeMillis();
-                        System.out.printf("Précision : %.2f%% - Temps : %d ms\n", precision, (endTime - startTime));
+                        // Initialisation du MLP
+                        AdaptateurMLP mlp = new AdaptateurMLP(donneesTrain, configuration, tauxApprentissage, fonctionActivation);
+
+                        mlp.entrainer(0.01, 10);
+
+                        Statistiques stats = new Statistiques(mlp);
+                        stats.calculerPourcentageCorrect(donneesTest, writer);
                     }
                 }
             }
-
-            // Test des différentes configurations
-//            testerNombreDeNeurones(donneesEntrainement, donneesTest);
-//            testerNombreDeCouches(donneesEntrainement, donneesTest);
-//            testerTauxApprentissage(donneesEntrainement, donneesTest);
+            writer.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-//    /**
-//     * Teste l'influence du nombre de neurones cachés.
-//     */
-//    private static void testerNombreDeNeurones(Donnees donneesTrain, Donnees donneesTest) {
-//        System.out.println("Test du nombre de neurones cachés");
-//
-//        int[] nombreNeuronesOptions = {9, 50, 100, 250, 500, 1000};
-//        for (int nombreNeurones : nombreNeuronesOptions) {
-//            int[] couches = {784, nombreNeurones, 10};
-//            MLP perceptron = new MLP(couches, 0.1, new TanhFunction());
-//
-//            long startTime = System.currentTimeMillis();
-//            double precision = entrainerEtEvaluer(perceptron, donneesTrain, donneesTest);
-//            long endTime = System.currentTimeMillis();
-//
-//            System.out.printf("Neurones cachés : %d - Précision : %.2f%% - Temps : %d ms\n", nombreNeurones, precision, (endTime - startTime));
-//        }
-//    }
-//
-//    /**
-//     * Teste l'influence du nombre de couches cachées.
-//     */
-//    private static void testerNombreDeCouches(Donnees donneesTrain, Donnees donneesTest) {
-//        System.out.println("Test du nombre de couches cachées");
-//
-//
-//
-//        for (int[] couches : configurationsCouches) {
-//            MLP perceptron = new MLP(couches, 0.1, new TanhFunction());
-//
-//            long startTime = System.currentTimeMillis();
-//            double precision = entrainerEtEvaluer(perceptron, donneesTrain, donneesTest);
-//            long endTime = System.currentTimeMillis();
-//
-//            System.out.printf("Couches : %s - Précision : %.2f%% - Temps : %d ms\n", Arrays.toString(couches), precision, (endTime - startTime));
-//        }
-//    }
-//
-//    /**
-//     * Teste l'influence du taux d'apprentissage.
-//     */
-//    private static void testerTauxApprentissage(Donnees donneesTrain, Donnees donneesTest) {
-//        System.out.println("Test du taux d'apprentissage");
-//
-//
-//
-//        for (double tauxApprentissage : tauxApprentissageOptions) {
-//            int[] couches = {784, 100, 10};
-//            MLP perceptron = new MLP(couches, tauxApprentissage, new TanhFunction());
-//
-//            long startTime = System.currentTimeMillis();
-//            double precision = entrainerEtEvaluer(perceptron, donneesTrain, donneesTest);
-//            long endTime = System.currentTimeMillis();
-//
-//            System.out.printf("Taux d'apprentissage : %.2f - Précision : %.2f%% - Temps : %d ms\n", tauxApprentissage, precision, (endTime - startTime));
-//        }
-//    }
-
-    /**
-     * Entraîne et évalue un réseau de neurones.
-     */
-    private static double entrainerEtEvaluer(MLP perceptron, Donnees donneesTrain, Donnees donneesTest) {
-        Arrays.stream(donneesTrain.getImagettes()).forEach(imagette -> {
-            double[] entrees = aplatirEtNormaliser(imagette.getPixels());
-            double[] sortiesDesirees = new double[10];
-            sortiesDesirees[imagette.getLabel()] = 1;
-            perceptron.backPropagate(entrees, sortiesDesirees);
-        });
-
-        long predictionsCorrectes = Arrays.stream(donneesTest.getImagettes())
-                .filter(imagette -> {
-                    double[] entrees = aplatirEtNormaliser(imagette.getPixels());
-                    double[] sortiesPredites = perceptron.execute(entrees);
-                    int etiquettePredite = obtenirEtiquetteDepuisSortie(sortiesPredites);
-                    return etiquettePredite == imagette.getLabel();
-                })
-                .count();
-
-        return (double) predictionsCorrectes / donneesTest.getImagettes().length * 100;
-    }
-
-
-
-    private static double[] aplatirEtNormaliser(int[][] pixels) {
-        return Arrays.stream(pixels).flatMapToInt(Arrays::stream).mapToDouble(val -> val / 255.0).toArray();
-    }
-
-    private static int obtenirEtiquetteDepuisSortie(double[] sorties) {
-        return IntStream.range(0, sorties.length).reduce((i, j) -> sorties[i] > sorties[j] ? i : j).orElse(0);
+    private static Donnees melangerDonnees(Donnees donnees) {
+        List<Imagette> listeImagettes = Arrays.asList(donnees.getImagettes());
+        Collections.shuffle(listeImagettes);
+        return new Donnees(listeImagettes.toArray(new Imagette[0]));
     }
 }

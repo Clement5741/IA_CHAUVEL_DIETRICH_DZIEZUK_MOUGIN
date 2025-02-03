@@ -24,4 +24,14 @@ public class Donnees {
 
         return new Donnees(images);
     }
+
+    public static Donnees loadData(String imagePath, String labelPath,int maxImages) throws IOException {
+        Imagette[] images = Imagette.loadImages(imagePath, maxImages);
+        int[] labels = Labels.loadLabels(labelPath).getLabels();
+        // Associer les étiquettes aux images
+        for (int i = 0; i < images.length; i++) {
+            images[i].setLabel(labels[i]);
+        }
+        return new Donnees(images);
+    }
 }
